@@ -31,6 +31,7 @@ module "core_workspaces" {
   project_id                       = tfe_project.this.id
 
   name        = each.key
+  env         = each.value.env
   description = each.value.description
   tags        = each.value.tags
 }

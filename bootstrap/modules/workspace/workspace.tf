@@ -13,6 +13,27 @@ resource "tfe_workspace" "this" {
   )
 }
 
+# Used to set workspace to automatically use `environments/${env}.tfvars
+resource "tfe_variable" "env" {
+  workspace_id = tfe_workspace.this.id
+
+  key      = "env"
+  value    = var.env
+  category = "terraform"
+}
+
+# Used to set workspace to automatically use `environments/${env}.tfvars
+resource "tfe_variable" "cli_args" {
+  workspace_id = tfe_workspace.this.id
+
+  key      = "TF_CLI_ARGS"
+  value    = "-var-file=environment/${var.env}.tfvars"
+  category = "env"
+
+  description = "Sets workspace to automatically consume the correct .tfvars file."
+}
+
+
 # The following variables must be set to allow runs
 # to authenticate to AWS.
 #

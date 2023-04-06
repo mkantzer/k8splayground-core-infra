@@ -9,6 +9,7 @@ variable "tf_project_name" {
 
 variable "core_workspaces" {
   type = map(object({
+    env         = string
     description = string
     tags        = list(string)
   }))

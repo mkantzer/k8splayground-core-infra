@@ -26,6 +26,10 @@ variable "name" {
   type = string
 }
 
+variable "env" {
+  type = string
+}
+
 variable "description" {
   type = string
 }
