@@ -26,7 +26,7 @@ resource "tfe_variable" "env" {
 resource "tfe_variable" "cli_args" {
   workspace_id = tfe_workspace.this.id
 
-  key      = "TF_CLI_ARGS"
+  key      = "TF_CLI_ARGS_plan"
   value    = "-var-file=environment/${var.env}.tfvars"
   category = "env"
 
