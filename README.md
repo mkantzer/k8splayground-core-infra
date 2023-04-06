@@ -1,2 +1,3 @@
 # k8splayground-core-infra
-Handles terraform for core infra of kubernetes playground: Networking, clusters, etc
+
+Handles terraform for core infra of Kubernetes playground: Networking, clusters, etc.
