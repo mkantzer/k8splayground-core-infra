@@ -27,18 +27,29 @@ module "subnet_addrs" {
       name     = "pub3"
       new_bits = var.subnet_size
     },
+    {
+      name     = "intra1"
+      new_bits = var.subnet_size
+    },
+    {
+      name     = "intra2"
+      new_bits = var.subnet_size
+    },
+    {
+      name     = "intra3"
+      new_bits = var.subnet_size
+    },
   ]
 }
-
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.19.0"
 
-  name = "k8s-playground-${var.env}"
+  name = local.name
   cidr = var.cidr_block
 
-  azs             = [
+  azs = [
     "${var.region}a",
     "${var.region}b",
     "${var.region}c",
@@ -47,14 +58,28 @@ module "vpc" {
     for k, v in module.subnet_addrs.network_cidr_blocks : v
     if startswith(k, "pvt")
   ]
-  public_subnets  = [
+  public_subnets = [
     for k, v in module.subnet_addrs.network_cidr_blocks : v
     if startswith(k, "pub")
   ]
+  intra_subnets = [
+    for k, v in module.subnet_addrs.network_cidr_blocks : v
+    if startswith(k, "intra")
+  ]
 
+  enable_ipv6        = true
   enable_nat_gateway = true
-  single_nat_gateway = false
+  single_nat_gateway = true
   enable_vpn_gateway = true
-  
-  enable_ipv6 = true
+
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${local.name}" = "shared"
+    "kubernetes.io/role/elb"              = "1"
+  }
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${local.name}" = "shared"
+    "kubernetes.io/role/internal-elb"     = "1"
+    # Tags subnets for Karpenter auto-discovery
+    "karpenter.sh/discovery" = local.name
+  }
 }
