@@ -34,7 +34,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
   YAML
 
   depends_on = [
-    module.eks_blueprints_kubernetes_addons
+    module.k8s_bootstrap_addons
   ]
 }
 
@@ -73,7 +73,7 @@ resource "kubectl_manifest" "karpenter_node_template" {
   YAML
 
   depends_on = [
-    module.eks_blueprints_kubernetes_addons
+    module.k8s_bootstrap_addons
   ]
 }
 
