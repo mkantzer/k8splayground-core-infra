@@ -37,6 +37,11 @@ module "k8s_addons" {
       path               = "addOns/${var.cluster_addons_version}/chart"
       repo_url           = "https://github.com/mkantzer/k8splayground-cluster-state.git"
       add_on_application = true
+      values = {
+        awsLoadBalancerController = {
+          enabled = true
+        }
+      }
     }
     # workloads = {
     #   path               = "envs/dev"
@@ -45,7 +50,8 @@ module "k8s_addons" {
     # }
   }
 
-  # # Add-ons
+  # Add-ons
+  enable_aws_load_balancer_controller = true
   # enable_aws_for_fluentbit             = true
   # # Let fluentbit create the cw log group
   # aws_for_fluentbit_create_cw_log_group = false
