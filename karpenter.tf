@@ -94,6 +94,7 @@ resource "kubectl_manifest" "karpenter_node_template" {
       securityGroupSelector:
         karpenter.sh/discovery: ${local.name}
       tags:
+        Name: "${local.name}-bttlrckt"
         karpenter.sh/discovery: ${local.name}
       metadataOptions:
         httpEndpoint: enabled
