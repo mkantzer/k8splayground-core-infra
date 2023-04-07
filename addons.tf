@@ -1,4 +1,8 @@
-module "eks_blueprints_kubernetes_addons" {
+# We have _2_ instances of the addons module. This allows us to split out the components that we _do not_ want managed 
+# by argoCD, because they need to be in place before argo comes online.
+
+# Addons required to bootstrap ArgoCD
+module "k8s_bootstrap_addons" {
   # given the lack of a release, and the up-in-the-airness of the system, i'm pinning a commit.
   source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons?ref=3e64d80"
 
