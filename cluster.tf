@@ -1,6 +1,6 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.12.0"
+  version = "~> 19.12"
 
   cluster_name                   = "playground-${var.env}"
   cluster_version                = var.cluster_version

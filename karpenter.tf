@@ -2,7 +2,7 @@
 
 module "karpenter" {
   source  = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version = "19.12.0"
+  version = "~> 19.12"
 
   cluster_name           = module.eks.cluster_name
   irsa_oidc_provider_arn = module.eks.oidc_provider_arn
@@ -27,7 +27,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
         resources:
           cpu: 1000
       providerRef:
-        name: default
+        name: bottleRocket
       ttlSecondsAfterEmpty: 30
   YAML
 
@@ -41,7 +41,7 @@ resource "kubectl_manifest" "karpenter_node_template" {
     apiVersion: karpenter.k8s.aws/v1alpha1
     kind: AWSNodeTemplate
     metadata:
-      name: default
+      name: bottleRocket
     spec:
       subnetSelector:
         karpenter.sh/discovery: ${module.eks.cluster_name}
@@ -49,6 +49,25 @@ resource "kubectl_manifest" "karpenter_node_template" {
         karpenter.sh/discovery: ${module.eks.cluster_name}
       tags:
         karpenter.sh/discovery: ${module.eks.cluster_name}
+      metadataOptions:
+        httpEndpoint: enabled
+        httpProtocolIPv6: enabled
+        httpPutResponseHopLimit: 1
+        httpTokens: required
+      amiFamily: Bottlerocket
+      blockDeviceMappings:
+        # Root device
+        - deviceName: /dev/xvda
+          ebs:
+            volumeSize: 4Gi
+            volumeType: gp3
+            encrypted: true
+        # Data device: Container resources such as images and logs
+        - deviceName: /dev/xvdb
+          ebs:
+            volumeSize: 20Gi
+            volumeType: gp3
+            encrypted: true
   YAML
 
   depends_on = [
