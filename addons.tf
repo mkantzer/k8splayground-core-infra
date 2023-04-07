@@ -52,6 +52,7 @@ module "k8s_addons" {
 
   # Add-ons
   enable_aws_load_balancer_controller = true
+  enable_fargate_fluentbit            = true
   # enable_aws_for_fluentbit             = true
   # # Let fluentbit create the cw log group
   # aws_for_fluentbit_create_cw_log_group = false
