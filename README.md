@@ -17,6 +17,8 @@ However, given the [change in direction for v5 of blueprints](https://github.com
 
 
 
-## Cluster Addon Management:
+## Cluster Add-on Management:
 
-Given the changes to eks blueprints, managing addons is in a bit of a weird state. I'm _pretty_ sure the goal is to just move them into [their own repo](https://github.com/aws-ia/terraform-aws-eks-blueprints-addons), which means I _should_ be able to just use the existing v4 examples, but pointed at the new repo. That's certainly what I'm going to _try_ to do.
+Given the changes to eks blueprints, managing add-ons is in a bit of a weird state. I'm _pretty_ sure the goal is to just move them into [their own repo](https://github.com/aws-ia/terraform-aws-eks-blueprints-addons), which means I _should_ be able to just use the existing v4 examples, but pointed at the new repo. That's certainly what I'm going to _try_ to do.
+
+In terms of installing and configuring cluster add-ons, anything that isn't karpenter and the argocd bootstrap will be managed in `mkantzer/k8s-playground-cluster-state`, to allow greater flexibility. (note: this may not actually end up as true: it's reasonably possible that _installation_ of additional systems like externalDNS, external secrets, metrics servers, and the like are best done here, while _usage_ of them (read: deploying resources of their CRDs) is best managed in cluster-state.)

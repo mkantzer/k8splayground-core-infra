@@ -27,7 +27,7 @@ module "eks" {
   aws_auth_users = [{
     userarn  = "arn:aws:iam::537161898135:user/Mike"
     username = "admin"
-    groups   = ["system:master"]
+    groups   = ["system:masters"]
   }]
 
   fargate_profiles = {

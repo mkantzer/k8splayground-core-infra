@@ -16,5 +16,4 @@ variable "subnet_size" {
 
 variable "cluster_version" {
   type    = string
-  default = "1.24"
 }

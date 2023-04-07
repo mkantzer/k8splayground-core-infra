@@ -5,7 +5,9 @@ module "karpenter" {
   version = "~> 19.12"
 
   cluster_name           = module.eks.cluster_name
+
   irsa_oidc_provider_arn = module.eks.oidc_provider_arn
+  irsa_namespace_service_accounts = ["karpenter:karpenter"]
 
   policies = {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
@@ -27,7 +29,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
         resources:
           cpu: 1000
       providerRef:
-        name: bottleRocket
+        name: bottlerocket
       ttlSecondsAfterEmpty: 30
   YAML
 
@@ -41,7 +43,7 @@ resource "kubectl_manifest" "karpenter_node_template" {
     apiVersion: karpenter.k8s.aws/v1alpha1
     kind: AWSNodeTemplate
     metadata:
-      name: bottleRocket
+      name: bottlerocket
     spec:
       subnetSelector:
         karpenter.sh/discovery: ${module.eks.cluster_name}
