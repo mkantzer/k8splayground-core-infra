@@ -38,9 +38,7 @@ module "k8s_addons" {
       repo_url           = "https://github.com/mkantzer/k8splayground-cluster-state.git"
       add_on_application = true
       values = {
-        awsLoadBalancerController = {
-          enabled = true
-          # need to specify the VPC ID manually: can't introspect EC2Metadata in fargate
+        valuesFromTF = {
           vpcId = module.vpc.vpc_id
         }
       }
@@ -53,11 +51,11 @@ module "k8s_addons" {
   }
 
   # Add-ons
-  enable_aws_load_balancer_controller        = true
+  enable_aws_load_balancer_controller = true
   # no idea what's up with this:
   # enable_aws_load_balancer_controller_gitops = true
-  
-  enable_fargate_fluentbit                   = true
+
+  enable_fargate_fluentbit = true
   # enable_aws_for_fluentbit             = true
   # # Let fluentbit create the cw log group
   # aws_for_fluentbit_create_cw_log_group = false
