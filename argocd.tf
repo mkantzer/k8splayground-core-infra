@@ -30,7 +30,7 @@ module "argocd" {
       values = {
         awsLoadBalancerController = {
           enable             = true
-          serviceAccountName = local.aws_load_balancer_controller.service_account
+          serviceAccountName = local.aws_load_balancer_controller_service_account
           vpcId              = module.vpc.vpc_id
         }
       }

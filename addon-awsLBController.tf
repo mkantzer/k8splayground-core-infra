@@ -1,8 +1,6 @@
 locals {
-  aws_load_balancer_controller = {
-    name            = "aws-load-balancer-controller"
-    service_account = "${local.aws_load_balancer_controller.name}-sa"
-  }
+  aws_load_balancer_controller_name            = "aws-load-balancer-controller"
+  aws_load_balancer_controller_service_account = "${local.aws_load_balancer_controller_name}-sa"
 }
 
 module "aws_load_balancer_controller" {
@@ -39,7 +37,7 @@ module "aws_load_balancer_controller" {
     this = {
       provider_arn = module.eks.oidc_provider_arn
       # namespace is inherited from chart
-      service_account = local.aws_load_balancer_controller.service_account
+      service_account = local.aws_load_balancer_controller_service_account
     }
   }
 }
