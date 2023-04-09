@@ -1,7 +1,7 @@
 locals {
   aws_load_balancer_controller = {
     name            = "aws-load-balancer-controller"
-    service_account = "${local.aws_load_balancer_controller_name}-sa"
+    service_account = "${local.aws_load_balancer_controller.name}-sa"
   }
 }
 
