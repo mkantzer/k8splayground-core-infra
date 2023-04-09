@@ -3,9 +3,10 @@
 
 # Resolve AuthFailure.ServiceLinkedRoleCreationNotPermitted
 # https://karpenter.sh/preview/troubleshooting/#missing-service-linked-role
-resource "aws_iam_service_linked_role" "spot" {
-  aws_service_name = "spot.amazonaws.com"
-}
+# Note: I think it's probably best to just create this one, instead of doing it here. Too likely to make things _weird_.
+# resource "aws_iam_service_linked_role" "spot" {
+#   aws_service_name = "spot.amazonaws.com"
+# }
 
 module "karpenter" {
   source  = "terraform-aws-modules/eks/aws//modules/karpenter"

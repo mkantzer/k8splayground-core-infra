@@ -1,17 +1,9 @@
-# Deploys ArgoCD, initilizes top-level apps-of-apps, and generates AWS resources for any enabled add-on
-module "k8s_addons" {
+# Deploys ArgoCD, initilizes top-level apps-of-apps, and passes in any needed values for consumption by sup-apps
+module "argocd" {
   # given the lack of a release, and the up-in-the-airness of the system, i'm pinning a commit.
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons?ref=3e64d80"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons//modules/argocd?ref=739dfd5"
 
-  cluster_name      = module.eks.cluster_name
-  cluster_endpoint  = module.eks.cluster_endpoint
-  cluster_version   = module.eks.cluster_version
-  oidc_provider     = module.eks.oidc_provider
-  oidc_provider_arn = module.eks.oidc_provider_arn
-
-  enable_argocd = true
-  # Set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
-  argocd_helm_config = {
+  helm_config = {
     name             = "argo-cd"
     chart            = "argo-cd"
     repository       = "https://argoproj.github.io/argo-helm"
@@ -28,41 +20,28 @@ module "k8s_addons" {
     ]
   }
 
-  # ArgoCD is responsible for managing/deploying the cluster part of add-ons.
-  # This flag instructs terraform to only deploy the _aws_ components.
-  argocd_manage_add_ons = true
-
-  argocd_applications = {
+  # Will use later, if/when I want to actually play around with softish multitenancy
+  # projects = {}
+  applications = {
     addons = {
       path               = "addOns/${var.cluster_addons_version}/chart"
       repo_url           = "https://github.com/mkantzer/k8splayground-cluster-state.git"
       add_on_application = true
       values = {
-        valuesFromTF = {
-          vpcId = module.vpc.vpc_id
+        awsLoadBalancerController = {
+          enable             = true
+          serviceAccountName = local.aws_load_balancer_controller.service_account
+          vpcId              = module.vpc.vpc_id
         }
       }
     }
-    # workloads = {
-    #   path               = "envs/dev"
-    #   repo_url           = "https://github.com/aws-samples/eks-blueprints-workloads.git"
-    #   add_on_application = false
-    # }
   }
 
-  # Add-ons
-  enable_aws_load_balancer_controller = true
-  # no idea what's up with this:
-  # enable_aws_load_balancer_controller_gitops = true
-
-  enable_fargate_fluentbit = true
-  # enable_aws_for_fluentbit             = true
-  # # Let fluentbit create the cw log group
-  # aws_for_fluentbit_create_cw_log_group = false
-  # enable_metrics_server                 = true
-  # enable_prometheus                     = true
+  addon_context = local.addon_context
+  # NOT using this, because it would/could cause the merge() to override per-add-on values.
+  # merge: https://github.com/aws-ia/terraform-aws-eks-blueprints-addons/blob/739dfd5/modules/argocd/main.tf#L68-L77
+  # addon_config  = { for k, v in local.argocd_addon_config : k => v if v != null }
 }
-
 
 #---------------------------------------------------------------
 # ArgoCD Admin Password credentials with Secrets Manager
@@ -89,4 +68,17 @@ resource "aws_secretsmanager_secret" "argocd" {
 resource "aws_secretsmanager_secret_version" "argocd" {
   secret_id     = aws_secretsmanager_secret.argocd.id
   secret_string = random_password.argocd.result
+}
+
+locals {
+  addon_context = {
+    aws_caller_identity_account_id = local.account_id
+    aws_caller_identity_arn        = data.aws_caller_identity.current.arn
+    aws_partition_id               = local.partition
+    aws_region_name                = local.region
+    eks_cluster_id                 = module.eks.cluster_name
+    aws_eks_cluster_endpoint       = module.eks.cluster_endpoint
+    eks_oidc_issuer_url            = module.eks.oidc_provider
+    eks_oidc_provider_arn          = module.eks.oidc_provider_arn
+  }
 }
