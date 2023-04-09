@@ -2,7 +2,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.12"
 
-  cluster_name                   = "playground-${var.env}"
+  cluster_name                   = local.name
   cluster_version                = var.cluster_version
   cluster_endpoint_public_access = true
 
@@ -74,5 +74,13 @@ module "eks" {
         }
       })
     }
+  }
+
+  tags = {
+    # NOTE - if creating multiple security groups with this module, only tag the
+    # security group that Karpenter should utilize with the following tag
+    # (i.e. - at most, only one security group should have this tag in your account)
+    # But, we're using the one automagically created by EKS, so we gotta tag _everything_ to propegate the tag though.
+    "karpenter.sh/discovery" = local.name
   }
 }

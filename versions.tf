@@ -39,12 +39,14 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = ">= 1.14"
     }
-    # bcrypt = {
-    #   source  = "viktorradnai/bcrypt"
-    #   version = ">= 0.1.2"
-    # }
+    bcrypt = {
+      source  = "viktorradnai/bcrypt"
+      version = ">= 0.1.2"
+    }
   }
 }
+
+provider "bcrypt" {}
 
 # https://github.com/hashicorp/terraform-provider-aws/issues/28281
 provider "aws" {

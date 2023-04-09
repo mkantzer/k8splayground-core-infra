@@ -1,16 +1,60 @@
-# The actual karpenter _cluster_ component is managed in addons.tf
+# Karpenter is deployed outside of the rest of the plugins because it needs to be running first,
+# so that it can provision the nodes that argoCD runs on.
+
+# Resolve AuthFailure.ServiceLinkedRoleCreationNotPermitted
+# https://karpenter.sh/preview/troubleshooting/#missing-service-linked-role
+resource "aws_iam_service_linked_role" "spot" {
+  aws_service_name = "spot.amazonaws.com"
+}
 
 module "karpenter" {
   source  = "terraform-aws-modules/eks/aws//modules/karpenter"
   version = "~> 19.12"
 
-  cluster_name           = module.eks.cluster_name
+  cluster_name = module.eks.cluster_name
 
-  irsa_oidc_provider_arn = module.eks.oidc_provider_arn
+  irsa_oidc_provider_arn          = module.eks.oidc_provider_arn
   irsa_namespace_service_accounts = ["karpenter:karpenter"]
 
   policies = {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  }
+}
+
+resource "helm_release" "karpenter" {
+  namespace        = "karpenter"
+  create_namespace = true
+
+  name                = "karpenter"
+  repository          = "oci://public.ecr.aws/karpenter"
+  repository_username = data.aws_ecrpublic_authorization_token.token.user_name
+  repository_password = data.aws_ecrpublic_authorization_token.token.password
+  chart               = "karpenter"
+  version             = "v0.27.1"
+
+  set {
+    name  = "settings.aws.clusterName"
+    value = module.eks.cluster_name
+  }
+
+  set {
+    name  = "settings.aws.clusterEndpoint"
+    value = module.eks.cluster_endpoint
+  }
+
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.karpenter.irsa_arn
+  }
+
+  set {
+    name  = "settings.aws.defaultInstanceProfile"
+    value = module.karpenter.instance_profile_name
+  }
+
+  set {
+    name  = "settings.aws.interruptionQueueName"
+    value = module.karpenter.queue_name
   }
 }
 
@@ -34,7 +78,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
   YAML
 
   depends_on = [
-    module.k8s_bootstrap_addons
+    helm_release.karpenter
   ]
 }
 
@@ -46,14 +90,14 @@ resource "kubectl_manifest" "karpenter_node_template" {
       name: bottlerocket
     spec:
       subnetSelector:
-        karpenter.sh/discovery: ${module.eks.cluster_name}
+        karpenter.sh/discovery: ${local.name}
       securityGroupSelector:
-        karpenter.sh/discovery: ${module.eks.cluster_name}
+        karpenter.sh/discovery: ${local.name}
       tags:
-        karpenter.sh/discovery: ${module.eks.cluster_name}
+        Name: "${local.name}-bttlrckt"
+        karpenter.sh/discovery: ${local.name}
       metadataOptions:
         httpEndpoint: enabled
-        httpProtocolIPv6: enabled
         httpPutResponseHopLimit: 1
         httpTokens: required
       amiFamily: Bottlerocket
@@ -73,38 +117,6 @@ resource "kubectl_manifest" "karpenter_node_template" {
   YAML
 
   depends_on = [
-    module.k8s_bootstrap_addons
+    helm_release.karpenter
   ]
 }
-
-# # Example deployment using the [pause image](https://www.ianlewis.org/en/almighty-pause-container)
-# # and starts with zero replicas
-# resource "kubectl_manifest" "karpenter_example_deployment" {
-#   yaml_body = <<-YAML
-#     apiVersion: apps/v1
-#     kind: Deployment
-#     metadata:
-#       name: inflate
-#     spec:
-#       replicas: 0
-#       selector:
-#         matchLabels:
-#           app: inflate
-#       template:
-#         metadata:
-#           labels:
-#             app: inflate
-#         spec:
-#           terminationGracePeriodSeconds: 0
-#           containers:
-#             - name: inflate
-#               image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
-#               resources:
-#                 requests:
-#                   cpu: 1
-#   YAML
-
-#   depends_on = [
-#     helm_release.karpenter
-#   ]
-# }

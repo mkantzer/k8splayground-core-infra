@@ -15,5 +15,9 @@ variable "subnet_size" {
 }
 
 variable "cluster_version" {
-  type    = string
+  type = string
+}
+
+variable "cluster_addons_version" {
+  type = string
 }
