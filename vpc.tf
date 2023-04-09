@@ -1,6 +1,7 @@
 # used for calculating subnets
 module "subnet_addrs" {
   source          = "hashicorp/subnets/cidr"
+  version         = "1.0.0"
   base_cidr_block = var.cidr_block
   networks = [
     {
