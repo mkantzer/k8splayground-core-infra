@@ -39,7 +39,7 @@ repoServer:
     - name: cmp-cuelang
       command:
         - "/var/run/argocd/argocd-cmp-server"
-      image: busybox
+      image: ghcr.io/mkantzer/k8splayground-argocd-cuelang:1.0.0
       securityContext:
         runAsNonRoot: true
         runAsUser: 999
