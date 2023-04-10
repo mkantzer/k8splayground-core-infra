@@ -33,7 +33,7 @@ configs:
             # produce non-empty output to standard out.
             # command: [sh, -c, find . -name env.yaml]
 
-# sidecar
+# Plugin Sidecar Situation
 repoServer:
   extraContainers:
     - name: cmp-cuelang
