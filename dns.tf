@@ -10,7 +10,7 @@ resource "aws_route53_zone" "cluster" {
 output "dns_zone_info" {
   description = "Information needed to delegate the subdomain to our hosted zone"
   value = {
-    subdomain = aws_route53_zone.cluster.name
+    subdomain    = aws_route53_zone.cluster.name
     name_servers = aws_route53_zone.cluster.name_servers
   }
 }

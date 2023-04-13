@@ -34,9 +34,9 @@ module "argocd" {
           vpcId              = module.vpc.vpc_id
         }
         externalDNS = {
-          enable = true
+          enable             = true
           serviceAccountName = local.external_dns_service_account
-          domainFilter = aws_route53_zone.cluster.name
+          domainFilter       = aws_route53_zone.cluster.name
         }
       }
     }
