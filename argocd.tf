@@ -36,7 +36,9 @@ module "argocd" {
         externalDns = {
           enable             = true
           serviceAccountName = local.external_dns_service_account
-          domainFilter       = aws_route53_zone.cluster.name
+          domainFilters = [
+            aws_route53_zone.cluster.name
+          ]
         }
       }
     }
