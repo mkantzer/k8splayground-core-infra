@@ -11,7 +11,7 @@ module "argocd" {
     namespace        = "argocd"
     timeout          = "1200"
     create_namespace = true
-    values           = [templatefile("${path.module}/argocd-values.yaml", {})]
+    values           = [templatefile("${path.module}/values-argocd.yaml", {})]
     set_sensitive = [
       {
         name  = "configs.secret.argocdServerAdminPassword"
@@ -32,6 +32,11 @@ module "argocd" {
           enable             = true
           serviceAccountName = local.aws_load_balancer_controller_service_account
           vpcId              = module.vpc.vpc_id
+        }
+        externalDNS = {
+          enable = true
+          serviceAccountName = local.external_dns_service_account
+          domainFilter = aws_route53_zone.cluster.name
         }
       }
     }

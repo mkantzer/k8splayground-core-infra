@@ -1,3 +1,17 @@
+# Set up ingress
+
+# server:
+#   ingress:
+#     enabled: true
+#     ingressClassName: alb
+#     hosts: []
+#   ingressGrpc:
+#     enabled: true
+#     isAWSALB: true
+#     ingressclassName: alb
+#     hosts: []
+
+
 # Set up the argocd cuelang plugins
 
 # configmaps
