@@ -21,7 +21,7 @@ module "external_dns" {
   # role_policies                 = lookup(var.external_dns, "role_policies", {})
 
   source_policy_documents = compact(concat(
-    data.aws_iam_policy_document.external_dns.json,
+    data.aws_iam_policy_document.external_dns[*].json,
     # lookup(var.external_dns, "source_policy_documents", [])
   ))
   # override_policy_documents = lookup(var.external_dns, "override_policy_documents", [])
