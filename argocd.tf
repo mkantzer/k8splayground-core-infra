@@ -33,7 +33,7 @@ module "argocd" {
           serviceAccountName = local.aws_load_balancer_controller_service_account
           vpcId              = module.vpc.vpc_id
         }
-        externalDNS = {
+        externalDns = {
           enable             = true
           serviceAccountName = local.external_dns_service_account
           domainFilter       = aws_route53_zone.cluster.name
