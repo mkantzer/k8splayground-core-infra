@@ -19,7 +19,7 @@ module "argocd" {
           enabled          = true
           ingressClassName = "alb"
           annotations = {
-            "alb.ingress.kubernetes.io/listen-ports" = "[{\"https\":443}]"
+            "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
           }
           hosts = ["argocd.${aws_route53_zone.cluster.name}"]
           tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
@@ -28,6 +28,9 @@ module "argocd" {
           enabled          = true
           isAWSALB         = true
           ingressClassName = "alb"
+          annotations = {
+            "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
+          }
           hosts            = ["argocd.${aws_route53_zone.cluster.name}"]
           tls              = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
         }
