@@ -22,6 +22,14 @@ resource "tfe_variable" "env" {
   category = "terraform"
 }
 
+resource "tfe_variable" "dns_suffix" {
+  workspace_id = tfe_workspace.this.id
+
+  key      = "dns_suffix"
+  value    = var.dns_suffix
+  category = "terraform"
+}
+
 # Used to set workspace to automatically use `environments/${env}.tfvars
 resource "tfe_variable" "cli_args" {
   workspace_id = tfe_workspace.this.id

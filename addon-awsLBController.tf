@@ -7,14 +7,14 @@ module "aws_load_balancer_controller" {
   # source = "aws-ia/eks-blueprints-addon/aws"
   # version = "1.0.0"
   # given the lack of a release, and the up-in-the-airness of the system, i'm pinning a commit.
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons//modules/eks-blueprints-addon?ref=739dfd5"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons//modules/eks-blueprints-addon?ref=f4eff0692f7314ac853651fbe502268719c5871b"
 
   create         = true
   create_release = false
 
   # IAM role for service account (IRSA)
   create_role          = true
-  set_irsa_name        = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+  set_irsa_names       = ["serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"]
   role_name            = "alb-controller"
   role_name_use_prefix = true
   role_path            = "/"

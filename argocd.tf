@@ -11,7 +11,73 @@ module "argocd" {
     namespace        = "argocd"
     timeout          = "1200"
     create_namespace = true
-    values           = [templatefile("${path.module}/values-argocd.yaml", {})]
+    # values           = [templatefile("${path.module}/values-argocd.yaml", {})]
+    values = [yamlencode({
+      # Ingress
+      server = {
+        ingress = {
+          enabled          = true
+          ingressClassName = "alb"
+          annotations = {
+            "alb.ingress.kubernetes.io/listen-ports" = "[{\"https\":443}]"
+          }
+          hosts = ["argocd.${aws_route53_zone.cluster.name}"]
+          tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
+        }
+        ingressGrpc = {
+          enabled          = true
+          isAWSALB         = true
+          ingressClassName = "alb"
+          hosts            = ["argocd.${aws_route53_zone.cluster.name}"]
+          tls              = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
+        }
+      }
+      # ArgoCD Cuelang Plugin
+      configs = {
+        cmp = {
+          create = true
+          plugins = {
+            cuelang = {
+              generate = {
+                command = ["cue"]
+                args    = ["cmd", "dump", "./..."]
+              }
+              discover = {
+                find = {
+                  glob = "**/*.cue"
+      } } } } } }
+      # Plugin Sidecar
+      repoServer = {
+        extraContainers = [{
+          name    = "cmp-cuelang"
+          command = ["/var/run/argocd/argocd-cmp-server"]
+          image   = "ghcr.io/mkantzer/k8splayground-argocd-cuelang:1.0.0"
+          securityContext = {
+            runAsNonRoot = true
+            runAsUser    = 999
+          }
+          volumeMounts = [{
+            mountPath = "/var/run/argocd"
+            name      = "var-files"
+            }, {
+            mountPath = "/home/argocd/cmp-server/plugins"
+            name      = "plugins"
+            }, {
+            mountPath = "home/argocd/cmp-server/config/plugin.yaml"
+            subPath   = "cuelang.yaml"
+            name      = "argocd-cmp-cm"
+            }, {
+            mountPath = "/tmp"
+            name      = "cmp-tmp"
+          }]
+          volumes = [{
+            name      = "argocd-cmp-cm"
+            configMap = { name = "argocd-cmp-cm" }
+            }, {
+            name     = "cmp-tmp"
+            emptyDir = {}
+          }]
+    }] } })]
     set_sensitive = [
       {
         name  = "configs.secret.argocdServerAdminPassword"
