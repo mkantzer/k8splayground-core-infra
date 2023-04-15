@@ -13,32 +13,32 @@ module "argocd" {
     create_namespace = true
     # values           = [templatefile("${path.module}/values-argocd.yaml", {})]
     values = [yamlencode({
-      # Ingress
-      server = {
-        ingress = {
-          enabled          = true
-          ingressClassName = "alb"
-          annotations = {
-            "alb.ingress.kubernetes.io/scheme"       = "internet-facing"
-            "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
-            "alb.ingress.kubernetes.io/target-type"  = "ip"
-          }
-          hosts = ["argocd.${aws_route53_zone.cluster.name}"]
-          tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
-        }
-        ingressGrpc = {
-          enabled          = true
-          isAWSALB         = true
-          ingressClassName = "alb"
-          annotations = {
-            "alb.ingress.kubernetes.io/scheme"       = "internet-facing"
-            "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
-            "alb.ingress.kubernetes.io/target-type"  = "ip"
-          }
-          hosts = ["argocd.${aws_route53_zone.cluster.name}"]
-          tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
-        }
-      }
+      # Ingress: currently disabled, because I don't actually want anyone hitting argocd's API
+      # server = {
+      #   ingress = {
+      #     enabled          = true
+      #     ingressClassName = "alb"
+      #     annotations = {
+      #       "alb.ingress.kubernetes.io/scheme"       = "internet-facing"
+      #       "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
+      #       "alb.ingress.kubernetes.io/target-type"  = "ip"
+      #     }
+      #     hosts = ["argocd.${aws_route53_zone.cluster.name}"]
+      #     tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
+      #   }
+      #   ingressGrpc = {
+      #     enabled          = true
+      #     isAWSALB         = true
+      #     ingressClassName = "alb"
+      #     annotations = {
+      #       "alb.ingress.kubernetes.io/scheme"       = "internet-facing"
+      #       "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
+      #       "alb.ingress.kubernetes.io/target-type"  = "ip"
+      #     }
+      #     hosts = ["argocd.${aws_route53_zone.cluster.name}"]
+      #     tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
+      #   }
+      # }
       # ArgoCD Cuelang Plugin
       configs = {
         cmp = {
