@@ -31,8 +31,8 @@ module "argocd" {
           annotations = {
             "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
           }
-          hosts            = ["argocd.${aws_route53_zone.cluster.name}"]
-          tls              = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
+          hosts = ["argocd.${aws_route53_zone.cluster.name}"]
+          tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
         }
       }
       # ArgoCD Cuelang Plugin

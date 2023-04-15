@@ -6,9 +6,12 @@ module "external_dns" {
   # source = "aws-ia/eks-blueprints-addon/aws"
   # version = "1.0.0"
   # given the lack of a release, and the up-in-the-airness of the system, i'm pinning a commit.
-  source         = "github.com/aws-ia/terraform-aws-eks-blueprints-addons//modules/eks-blueprints-addon?ref=f4eff0692f7314ac853651fbe502268719c5871b"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons//modules/eks-blueprints-addon?ref=f4eff0692f7314ac853651fbe502268719c5871b"
+
   create         = true
   create_release = false
+
+  namespace = "external-dns"
 
   # IAM role for service account (IRSA)
   create_role          = true

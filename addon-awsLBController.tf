@@ -12,6 +12,8 @@ module "aws_load_balancer_controller" {
   create         = true
   create_release = false
 
+  namespace = "kube-system"
+
   # IAM role for service account (IRSA)
   create_role          = true
   set_irsa_names       = ["serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"]
