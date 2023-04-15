@@ -3,6 +3,7 @@
 
 resource "aws_route53_zone" "cluster" {
   name = "${var.env}.${var.dns_suffix}"
+  force_destroy = true
 }
 
 # Delegate subdomain from primary hosted zone
