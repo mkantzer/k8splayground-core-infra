@@ -2,7 +2,7 @@
 # ExternalDNS will handle the actual records.
 
 resource "aws_route53_zone" "cluster" {
-  name = "${var.env}.${var.dns_suffix}"
+  name          = "${var.env}.${var.dns_suffix}"
   force_destroy = true
 }
 
