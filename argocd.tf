@@ -95,15 +95,25 @@ module "argocd" {
       add_on_application = true
       values = {
         awsLoadBalancerController = {
-          enable             = true
-          serviceAccount     = { create = true }
-          serviceAccountName = local.aws_load_balancer_controller_service_account
-          vpcId              = module.vpc.vpc_id
+          enable = true
+          serviceAccount = {
+            create = true
+            name   = local.aws_load_balancer_controller_service_account
+            annotations = {
+              "eks.amazonaws.com/role-arn" = module.aws_load_balancer_controller.iam_role_arn
+            }
+          }
+          vpcId = module.vpc.vpc_id
         }
         externalDns = {
-          enable             = true
-          serviceAccount     = { create = true }
-          serviceAccountName = local.external_dns_service_account
+          enable = true
+          serviceAccount = {
+            create = true
+            name   = local.external_dns_service_account
+            annotations = {
+              "eks.amazonaws.com/role-arn" = module.external_dns.iam_role_arn
+            }
+          }
           domainFilters = [
             aws_route53_zone.cluster.name
           ]

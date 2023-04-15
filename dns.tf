@@ -22,8 +22,8 @@ resource "aws_route53_record" "cluster_delegation" {
 # Create and validate certificate
 
 resource "aws_acm_certificate" "cluster_ingress" {
-  domain_name       = "${var.env}.${var.dns_suffix}"
-  validation_method = "DNS"
+  domain_name               = "${var.env}.${var.dns_suffix}"
+  validation_method         = "DNS"
   subject_alternative_names = ["*.${var.env}.${var.dns_suffix}"]
 
   lifecycle {
