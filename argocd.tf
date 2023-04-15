@@ -69,15 +69,15 @@ module "argocd" {
             }, {
             mountPath = "/tmp"
             name      = "cmp-tmp"
-          }]
-          volumes = [{
-            name      = "argocd-cmp-cm"
-            configMap = { name = "argocd-cmp-cm" }
-            }, {
-            name     = "cmp-tmp"
-            emptyDir = {}
-          }]
-    }] } })]
+        }] }],
+        volumes = [{
+          name      = "argocd-cmp-cm"
+          configMap = { name = "argocd-cmp-cm" }
+          }, {
+          name     = "cmp-tmp"
+          emptyDir = {}
+        }]
+    } })]
     set_sensitive = [
       {
         name  = "configs.secret.argocdServerAdminPassword"
