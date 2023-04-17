@@ -2,6 +2,10 @@ variable "env" {
   type = string
 }
 
+variable "dns_suffix" {
+  type = string
+}
+
 variable "region" {
   type = string
 }

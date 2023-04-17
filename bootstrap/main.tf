@@ -1,3 +1,18 @@
+# top-level subdomain for systems
+
+resource "aws_route53_zone" "cluster" {
+  name = "clusters.kantzer.io"
+}
+
+# Output values needed to delegate subdomain
+output "dns_zone_info" {
+  description = "Information needed to delegate the subdomain to our hosted zone"
+  value = {
+    subdomain    = aws_route53_zone.cluster.name
+    name_servers = aws_route53_zone.cluster.name_servers
+  }
+}
+
 # Data source used to grab the TLS certificate for Terraform Cloud.
 #
 # https://registry.terraform.io/providers/hashicorp/tls/latest/docs/data-sources/certificate
@@ -32,6 +47,7 @@ module "core_workspaces" {
 
   name        = each.key
   env         = each.value.env
+  dns_suffix  = aws_route53_zone.cluster.name
   description = each.value.description
   tags        = each.value.tags
 }

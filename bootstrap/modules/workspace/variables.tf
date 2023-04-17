@@ -38,6 +38,8 @@ variable "tags" {
   type = list(string)
 }
 
-
+variable "dns_suffix" {
+  type = string
+}
 
 
