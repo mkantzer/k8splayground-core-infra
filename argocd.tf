@@ -39,6 +39,7 @@ module "argocd" {
       #     tls   = [{ hosts = ["argocd.${aws_route53_zone.cluster.name}"] }]
       #   }
       # }
+
       # ArgoCD Cuelang Plugin
       configs = {
         cmp = {
@@ -95,6 +96,7 @@ module "argocd" {
 
   # Will use later, if/when I want to actually play around with softish multitenancy
   # projects = {}
+
   applications = {
     addons = {
       path               = "addOns/${var.cluster_addons_version}/chart"
@@ -127,6 +129,10 @@ module "argocd" {
         }
       }
     }
+    # echo-app = {
+    #   path     = "k8s_apps/echo/dev"
+    #   repo_url = "https://github.com/mkantzer/k8splayground-cluster-state.git"
+    # }
   }
 
   addon_context = local.addon_context
@@ -134,6 +140,69 @@ module "argocd" {
   # merge: https://github.com/aws-ia/terraform-aws-eks-blueprints-addons/blob/739dfd5/modules/argocd/main.tf#L68-L77
   # addon_config  = { for k, v in local.argocd_addon_config : k => v if v != null }
 }
+
+
+#---------------------------------------------------------------
+# ArgoCD Cuelang App Bootstrap
+# The argocd module can only create applications that explicitly use `helm` or `kustomize`.
+# Tracking ticket: https://github.com/aws-ia/terraform-aws-eks-blueprints-addons/issues/127
+# Therefor, we need to manually create any applications that we want to explicitly use `cue`
+#---------------------------------------------------------------
+
+# Note: right now, this is only being used to bootstrap a single app. 
+# Once it is proven to work, (and once ingress is confirmed working),
+# we will tranisition this to an app-of-apps (or, more likely, an ApplicationSet)
+resource "kubectl_manifest" "argocd_cuelang_app" {
+  yaml_body = yamlencode({
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+    metadata = {
+      name      = "echo"
+      namespace = "argocd"
+      finaliers = [
+        "resources-finalizer.argocd.argoproj.io"
+      ]
+    }
+    spec = {
+      project = "default"
+      source = {
+        repoURL        = "https://github.com/mkantzer/k8splayground-cluster-state.git"
+        targetRevision = "HEAD"
+        path           = "k8s_apps/echo/dev"
+        plugin         = { name = "cuelang" }
+      }
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = "echo"
+      }
+      syncPolicy = {
+        automated = {
+          allowEmpty = false
+          prune      = true
+          selfHeal   = true
+        }
+        retry = {
+          limit = 10
+          backoff = {
+            factor      = 2
+            duration    = "10s"
+            maxDuration = "3m"
+          }
+        }
+        syncOptions = [
+          "Validate=false",
+          "CreateNamespace=true",
+          "PrunePropagationPolicy=foreground",
+          "PruneLast=true",
+          "RespectIgnoreDifferences=true",
+        ]
+      }
+    }
+  })
+
+}
+
+
 
 #---------------------------------------------------------------
 # ArgoCD Admin Password credentials with Secrets Manager
